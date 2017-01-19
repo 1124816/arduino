@@ -17,7 +17,7 @@ void loop()
   for(uint16_t i = 0; i < LED_COUNT; i++)
   {
     if(i== x) {
-      colors[i] = (rgb_color){ 0, 255, 255 };
+      colors[i] = (rgb_color){ 255, 255, 255 };
     } else if(abs(x-i == 1)){
       colors[i] = (rgb_color){ 0, 100, 100 };
     } else if(x>78&&i<10){

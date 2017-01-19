@@ -27,7 +27,7 @@ void loop()
   for(uint16_t i = 0; i < LED_COUNT; i++)
   {
     //byte x = time - 8*i;
-    colors[i] = (rgb_color){ (x%2)*255,(1-(x%2))*255, 0 };
+    colors[i] = (rgb_color){ 255, 255, 255 };
   }
   
   // Write the colors to the LED strip.
