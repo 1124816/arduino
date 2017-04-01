@@ -1,6 +1,10 @@
 
-long pulse, inches, cm, pulse2, inches2, cm2;
 
+
+long pulse, inches, cm;
+long total = 0;
+long bround[5] = {0}; 
+int k = 0;
 
 
 
@@ -10,8 +14,7 @@ void setup()
 
   Serial.begin(9600);
   pinMode(23, INPUT);
-  pinMode(22, INPUT);
-  pinMode(21, OUTPUT);
+  pinMode(13, OUTPUT);
   
 }
 
@@ -19,19 +22,33 @@ void setup()
 
 void loop()
 {
-  digitalWrite(21, HIGH);
+  total = 0;
   pulse = pulseIn(23, HIGH);
   inches = pulse / 147;
   cm = inches * 2.54;
-  pulse2 = pulseIn(22, HIGH);
-  inches2 = pulse2 / 147;
-  cm2 = inches2 * 2.54;
-  digitalWrite(21, LOW);
+  
+  if(k<5) {
+    bround[k] = cm;
+    k = k + 1;
+  } else {
+    k = 0;
+    bround[k] = cm;
+    k = k +1;
+  };
 
+  for(int i=0;i<5;i++) {
+     total = total + bround[i];
+  };
+  total = total / 5;
+  
+  if(total<150) {
+    digitalWrite(13, HIGH);  
+  }else{
+    digitalWrite(13, LOW);  
+  };
   Serial.print(cm);
   Serial.print(",");
-  Serial.println(cm2);
-  
-  delay(200);
+  Serial.println(total);
+  delay(500);
 }
 
