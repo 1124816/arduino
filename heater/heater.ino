@@ -1,61 +1,57 @@
-
-
 #include <OneWire.h>
 
-OneWire  ds(2); 
+OneWire ds(2);
 
-String inputString = "";         // a string to hold incoming data
-boolean stringComplete = false;  // whether the string is complete
-boolean led = false;
-boolean leds = true;
+String inputString = "";  //holds command
+boolean newline = false;  //if command has been entered
+boolean led = false;  //whether the heater is on or off
+boolean leds = true;  //whether theater is in manual(off) or auto
 
 void setup() {
-  // initialize serial:
   Serial.begin(9600);
-  // reserve 200 bytes for the inputString:
   inputString.reserve(200);
-  pinMode(13, OUTPUT); 
+  pinMode(13, OUTPUT);
 }
 
 void loop() {
-  // print the string when a newline arrives:
-  if (stringComplete) {
+  if (newline) {
+    //if command entered
     Serial.println(inputString);
     if (leds) {
-      //digitalWrite(13, LOW);
+      //set to off
       Serial.println("man");
       leds = false;
     }else{
-      //digitalWrite(13, HIGH);
+      //set to auto
       Serial.println("auto");
-      //led = true;
       leds = true;
-    }; 
+    };
     // clear the string:
     inputString = "";
-    stringComplete = false;
+    newline = false;
   }
 
-    byte i;
+  //copy/paste from sensor example begins
+
+  byte i;
   byte present = 0;
   byte type_s;
   byte data[12];
   byte addr[8];
   float celsius, fahrenheit;
-  
+
   if ( !ds.search(addr)) {
     ds.reset_search();
     delay(250);
     return;
   }
-  
+
 
   if (OneWire::crc8(addr, 7) != addr[7]) {
       Serial.println("CRC is not valid!");
       return;
   }
- 
-  // the first ROM byte indicates which chip
+
   switch (addr[0]) {
     case 0x10:
       type_s = 1;
@@ -68,48 +64,57 @@ void loop() {
       break;
     default:
       return;
-  } 
+  }
 
   ds.reset();
   ds.select(addr);
-  ds.write(0x44, 1);        
-  
-  delay(1000);     
-  
-  present = ds.reset();
-  ds.select(addr);    
-  ds.write(0xBE);        
+  ds.write(0x44, 1);
 
-  for ( i = 0; i < 9; i++) {           
+  delay(1000);
+
+  present = ds.reset();
+  ds.select(addr);
+  ds.write(0xBE);
+
+  for ( i = 0; i < 9; i++) {
     data[i] = ds.read();
   }
 
   int16_t raw = (data[1] << 8) | data[0];
+
   if (type_s) {
-    raw = raw << 3; 
+    raw = raw << 3;
     if (data[7] == 0x10) {
       raw = (raw & 0xFFF0) + 12 - data[6];
     }
   } else {
     byte cfg = (data[4] & 0x60);
-    if (cfg == 0x00) raw = raw & ~7;  
-    else if (cfg == 0x20) raw = raw & ~3; 
-    else if (cfg == 0x40) raw = raw & ~1; 
+    if (cfg == 0x00) raw = raw & ~7;
+    else if (cfg == 0x20) raw = raw & ~3;
+    else if (cfg == 0x40) raw = raw & ~1;
   }
   celsius = (float)raw / 16.0;
   Serial.println(celsius);
+
+  //copy/paste from sensor example ends
+
   if(leds) {
+    //if the heater is set to auto
     if(celsius < 2 && !led){
+      //if off and cold turn on
       digitalWrite(13, HIGH);
       led = true;
       Serial.println("turning on auto");
     } else if(celsius > 2 && led) {
+      //if on and hot turn off
       digitalWrite(13, LOW);
       led = false;
       Serial.println("turning off auto");
       }
   }else{
+    //if the heater is set to manual
     if(led) {
+      //if on and manually set to off turn off
       digitalWrite(13, LOW);
       led = false;
       Serial.println("turning off");
@@ -117,24 +122,13 @@ void loop() {
   }
 }
 
-/*
-  SerialEvent occurs whenever a new data comes in the
- hardware serial RX.  This routine is run between each
- time loop() runs, so using delay inside loop can delay
- response.  Multiple bytes of data may be available.
- */
 void serialEvent() {
+  //when command is sent
   while (Serial.available()) {
-    // get the new byte:
-    char inChar = (char)Serial.read();
-    // add it to the inputString:
-    inputString += inChar;
-    // if the incoming character is a newline, set a flag
-    // so the main loop can do something about it:
-    if (inChar == '\n') {
-      stringComplete = true;
+    char com = (char)Serial.read();
+    inputString += com;
+    if (com == '\n') {
+      newline = true;
     }
   }
 }
-
-
