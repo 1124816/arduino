@@ -3,8 +3,9 @@
 
 long pulse, inches, cm;
 long total = 0;
-long bround[5] = {0}; 
+long bround[10] = {0}; 
 int k = 0;
+int light = 0;
 
 
 
@@ -27,7 +28,7 @@ void loop()
   inches = pulse / 147;
   cm = inches * 2.54;
   
-  if(k<5) {
+  if(k<10) {
     bround[k] = cm;
     k = k + 1;
   } else {
@@ -36,19 +37,27 @@ void loop()
     k = k +1;
   };
 
-  for(int i=0;i<5;i++) {
+  for(int i=0;i<10;i++) {
      total = total + bround[i];
   };
-  total = total / 5;
-  
-  if(total<150) {
-    digitalWrite(13, HIGH);  
+  total = total / 10;
+
+  if(light != 0) {
+    if(light%2==0) {
+      digitalWrite(13, HIGH);
+    } else {
+      digitalWrite(13, LOW);
+    };
+    light = light -1;
+  }else if(total<150) {
+    digitalWrite(13, HIGH); 
+    light = 40; 
   }else{
     digitalWrite(13, LOW);  
   };
   Serial.print(cm);
   Serial.print(",");
   Serial.println(total);
-  delay(500);
+  delay(100);
 }
 
