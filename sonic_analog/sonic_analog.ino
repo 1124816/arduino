@@ -6,7 +6,9 @@ int k = 0;
 long total2 = 0;
 long bround2[10] = {0}; 
 int k2 = 0;
-
+int timer = 0;
+int lock = 0;
+bool starts = true;
 
 
 
@@ -60,14 +62,34 @@ void loop()
   };
   total2 = total2 / 10;
 
+  if(total*1.5<300&&total2<300&&timer!=0) {
+    lock = timer;
+    timer = 0;
+    starts = false;
+  } else if(total*1.5<300&&total2<300) {
+    timer = 0;
+  } else if(total*1.5<300&&starts) {
+    timer += 1;
+  } else if(total2<300&&starts) {
+    timer += 1;
+  } else if(total*1.5>300&&total2>300) {
+    timer = 0;
+    starts = true;
+  };
+
   //Serial.print(pulse);
   //Serial.print(",");
   //Serial.print(pulse2);
-  //Serial.print(",");
-  Serial.print(total);
+  //Serial.print(",");if
+  Serial.print(total*1.5);
   Serial.print(",");
-  Serial.println(total2);
+  Serial.print(total2);
+  Serial.print(",");
+  Serial.print(timer);
+  Serial.print(",");
+  Serial.println(lock);
   
-  delay(200);
+  
+  delay(100);
 }
 
