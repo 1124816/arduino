@@ -1,4 +1,3 @@
-
 long pulse, inches, cm, pulse2, inches2, cm2;
 long total = 0;
 long bround[15] = {0}; 
@@ -22,6 +21,7 @@ void setup()
   pinMode(23, INPUT);
   pinMode(22, INPUT);
   pinMode(21, OUTPUT);
+  pinMode(13, OUTPUT);
   
 }
 
@@ -81,6 +81,7 @@ void loop()
   } else if(state==2){
     timer = 1;
     //direction
+    digitalWrite(13, HIGH);
     state = 3;
   } else if(state==3){
     timer +=1;
@@ -96,6 +97,7 @@ void loop()
       state = 4;  
     };
   } else if(state==4){
+    digitalWrite(13, LOW);
     times = timer;
     speeds = (low+low2)/2;
     speeds = sqrt(sq(speeds)*2);
